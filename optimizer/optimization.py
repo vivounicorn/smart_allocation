@@ -111,16 +111,16 @@ class CpModelOptimizer:
             print('   ', td_ex, '≤', 0, '      (c.)')
 
     def __make_constraint_d(self):
-        # 构造约束条件:d.
+        # 构造约束条件:funders.
         for j in self.xj:
             d_xij = self.xj[j]
             d_sum = sum(x[0] * math.floor(self.bp.reverse_customer_map[x[1]].p_score) for x in d_xij)
             d_ex = d_sum - len(d_xij) * math.floor(self.bp.reverse_funder_map[j].d_score)
             self.model.AddLinearConstraint(d_ex, cp_model.INT_MIN, 0)
-            print('   ', d_ex, '≤', 0, '      (d.)')
+            print('   ', d_ex, '≤', 0, '      (funders.)')
 
     def __make_constraint_e(self):
-        # 构造约束条件:d.
+        # 构造约束条件:funders.
         for j in self.xj:
             d_xij = self.xj[j]
             pctr = self.bp.reverse_funder_map[j].alpha / (self.bp.reverse_funder_map[j].alpha +

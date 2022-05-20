@@ -1,0 +1,39 @@
+
+CREATE DATABASE `test_db` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+
+-- test_db.funders definition
+
+CREATE TABLE `funders` (
+  `identifier` int NOT NULL AUTO_INCREMENT COMMENT '资方唯一标识',
+  `s` float DEFAULT NULL COMMENT '授信额度',
+  `v` int DEFAULT NULL COMMENT '授信有效期',
+  `is_rc` tinyint(1) DEFAULT NULL COMMENT '是否为循环额度',
+  `is_base` tinyint(1) DEFAULT NULL COMMENT '是否为托底资方',
+  `d_score` float DEFAULT NULL COMMENT '资方接受易鑫分下限',
+  `dr` float DEFAULT NULL COMMENT '资方接受逾期率',
+  `d` float DEFAULT NULL COMMENT '预期资方单量占比',
+  `p` float DEFAULT NULL COMMENT '资方通过率',
+  `c` float DEFAULT NULL COMMENT '资金成本',
+  `alpha` float DEFAULT NULL COMMENT 'alpha',
+  `beta` float DEFAULT NULL COMMENT 'beta',
+  PRIMARY KEY (`identifier`)
+) ENGINE=InnoDB AUTO_INCREMENT=401 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='资金方表';
+
+-- test_db.customers definition
+
+CREATE TABLE `customers` (
+  `identifier` int NOT NULL AUTO_INCREMENT COMMENT '用户唯一标识',
+  `m` int DEFAULT NULL COMMENT '融资额',
+  `w` int DEFAULT NULL COMMENT '融资期限',
+  `t` int DEFAULT NULL COMMENT '业务类型（新车0、二手车1、车主融2..）',
+  `rt` int DEFAULT NULL COMMENT '还款类型（等额本息0或等额本金1）',
+  `r` float DEFAULT NULL COMMENT '融资利率',
+  `pd` float DEFAULT NULL COMMENT '违约概率率（pd）',
+  `lgd` float DEFAULT NULL COMMENT '违约损失率（lgd）',
+  `p_score` float DEFAULT NULL COMMENT '易鑫分',
+  `mr` float DEFAULT NULL COMMENT '首付比例',
+  `hr` int DEFAULT NULL COMMENT '已还款期数',
+  `funders` varchar(100) DEFAULT NULL COMMENT '匹配资方列表',
+  PRIMARY KEY (`identifier`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户订单表';
