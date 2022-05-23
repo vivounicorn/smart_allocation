@@ -17,7 +17,7 @@ def build_customers_data(funders_map, cfg):
     cursor = db.cursor()
 
     # SQL 查询语句
-    sql = "SELECT * FROM ddl_script"
+    sql = "SELECT * FROM customers"
     try:
         # 执行SQL语句
         cursor.execute(sql)

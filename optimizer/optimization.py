@@ -117,7 +117,7 @@ class CpModelOptimizer:
             d_sum = sum(x[0] * math.floor(self.bp.reverse_customer_map[x[1]].p_score) for x in d_xij)
             d_ex = d_sum - len(d_xij) * math.floor(self.bp.reverse_funder_map[j].d_score)
             self.model.AddLinearConstraint(d_ex, cp_model.INT_MIN, 0)
-            print('   ', d_ex, '≤', 0, '      (funders.)')
+            print('   ', d_ex, '≤', 0, '      (d.)')
 
     def __make_constraint_e(self):
         # 构造约束条件:funders.
@@ -139,7 +139,9 @@ class CpModelOptimizer:
         for i in self.xi:
             h_xij = self.xi[i]
             h_sum = sum(x[0] for x in h_xij)
+
             self.model.AddLinearConstraint(h_sum, 1, 1)
+
             print('   ', h_sum, "= 1", '      (h.)')
 
     def build_problem(self):
@@ -169,12 +171,17 @@ class CpModelOptimizer:
         print(f'  branches : {solver.NumBranches()}')
         print(f'  wall time: {solver.WallTime()} s')
 
-        ij_map = {}
-        for v in self.variables:
-            if solver.Value(v[0]) == 1:
-                ij_map[(v[1], v[2])] = 1
+        if status == cp_model.OPTIMAL:
+            ij_map = {}
+            for v in self.variables:
+                if solver.Value(v[0]) == 1:
+                    ij_map[(v[1], v[2])] = 1
 
-        self.bp.print_graph()
-        self.bp.print_graph_base(lambda i, j: (i, j) in ij_map)
+            self.bp.print_graph()
+            self.bp.print_graph_base(lambda i, j: (i, j) in ij_map)
+
+        if status == cp_model.INFEASIBLE:
+            for var_index in solver.ResponseProto().sufficient_assumptions_for_infeasibility:
+                print(var_index, self.model.VarIndexToVarProto(var_index))  # prints "v1"
 
         return solver

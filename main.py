@@ -47,9 +47,9 @@ def SimpleSatProgram():
 
 
 if __name__ == "__main__":
-    SimpleSatProgram()
+    # SimpleSatProgram()
 
-    cfg = ConfigTools(path='/home/dell/PycharmProjects/smart_allocation/conf')
+    cfg = ConfigTools(path='/home/leon/Gitlab/smart_allocation/conf/')
 
     cp_model = CpModelOptimizer(cfg)
     cp_model.build_problem()
