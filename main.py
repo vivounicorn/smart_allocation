@@ -1,5 +1,4 @@
 """Simple solve."""
-from ortools.sat.python import cp_model
 
 from optimizer.optimization import CpModelOptimizer
 from tools.config_tools import ConfigTools
@@ -49,7 +48,7 @@ def SimpleSatProgram():
 if __name__ == "__main__":
     # SimpleSatProgram()
 
-    cfg = ConfigTools(path='/home/leon/Gitlab/smart_allocation/conf/')
+    cfg = ConfigTools(path='/Users/liyiran/Gitlab/smart_allocation')
 
     cp_model = CpModelOptimizer(cfg)
     cp_model.build_problem()
