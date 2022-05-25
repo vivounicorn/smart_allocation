@@ -44,9 +44,54 @@ def SimpleSatProgram():
     print('Problem solved in ', solver.WallTime(), 'ms')
     print('Memory usage: ', pywrapcp.Solver.MemoryUsage(), 'bytes')
 
+def tt():
+    """Showcases assumptions."""
+    # Creates the model.
+    # [START model]
+    from ortools.sat.python import cp_model
+    model = cp_model.CpModel()
+    # [END model]
+
+    # Creates the variables.
+    # [START variables]
+    x = model.NewIntVar(0, 10, 'x')
+    y = model.NewIntVar(0, 10, 'y')
+    z = model.NewIntVar(0, 10, 'z')
+    a = model.NewBoolVar('a')
+    b = model.NewBoolVar('b')
+    c = model.NewBoolVar('c')
+    d = model.NewBoolVar('d')
+    # [END variables]
+
+    # Creates the constraints.
+    # [START constraints]
+    model.Add(x > y).OnlyEnforceIf(a)
+    model.Add(y > z).OnlyEnforceIf(b)
+    model.Add(z > x).OnlyEnforceIf(c)
+    model.Add(x+y > z).OnlyEnforceIf(d)
+    # [END constraints]
+
+    # Add assumptions
+    model.AddAssumptions([d, a, b, c])
+    print(a.Index(),',',b.Index(),',',c.Index(),',',d.Index())
+
+    # Creates a solver and solves.
+    # [START solve]
+    solver = cp_model.CpSolver()
+    status = solver.Solve(model)
+    # [END solve]
+
+    # Print solution.
+    # [START print_solution]
+    print(f'Status = {solver.StatusName(status)}')
+    if status == cp_model.INFEASIBLE:
+        print('SufficientAssumptionsForInfeasibility = '
+              f'{solver.SufficientAssumptionsForInfeasibility()}')
+    # [END print_solution]
 
 if __name__ == "__main__":
     # SimpleSatProgram()
+    tt()
 
     cfg = ConfigTools(path='/Users/liyiran/Gitlab/smart_allocation')
 

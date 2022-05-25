@@ -74,7 +74,9 @@ class CpModelOptimizer:
 
             smooth = math.floor((1 - math.exp(smooth)) * self.bp.reverse_funder_map[j].s * UNIT * PRECISION)
 
-            self.model.AddLinearConstraint(a_sumj, 0, smooth)
+            v = self.model.NewBoolVar(str(a_sumj))
+            self.model.AddLinearConstraint(a_sumj, 0, smooth).OnlyEnforceIf(v)
+            self.model.AddAssumptions([v])
             print('    0≤', a_sumj, '≤', smooth, '      (a.)')
 
     def __make_constraint_b(self):
@@ -96,18 +98,25 @@ class CpModelOptimizer:
             else:
                 ex = b_sumj * PRECISION - b_sumij * math.floor(d / dsum * PRECISION + 1)
 
-            self.model.AddLinearConstraint(ex, cp_model.INT_MIN, 0)
+            v = self.model.NewBoolVar(str(ex))
+            self.model.AddLinearConstraint(ex, cp_model.INT_MIN, 0).OnlyEnforceIf(v)
+            self.model.AddAssumptions([v])
             print('   ', ex, '≤', 0, '      (b.)')
 
     def __make_constraint_c(self):
         # 构造约束条件:c.
         t_sumij = sum(v[0] * math.floor(self.bp.reverse_customer_map[v[1]].m / UNIT) for v in self.variables)
+
         for i in self.bt:
             t_xij = self.bt[i]  # 某个业务类型对应的变量列表.
             td = self.config.biz_items[i]  # 该业务类型订单量占比.
             t_sum = sum(x[0] * math.floor(self.bp.reverse_customer_map[x[1]].m / UNIT) for x in t_xij)
             td_ex = (t_sum * PRECISION - t_sumij * math.floor(td * PRECISION))
-            self.model.AddLinearConstraint(td_ex, cp_model.INT_MIN, 0)
+
+            v = self.model.NewBoolVar(str(td_ex))
+            self.model.AddLinearConstraint(td_ex, cp_model.INT_MIN, 0).OnlyEnforceIf(v)
+            self.model.AddAssumptions([v])
+
             print('   ', td_ex, '≤', 0, '      (c.)')
 
     def __make_constraint_d(self):
@@ -116,7 +125,9 @@ class CpModelOptimizer:
             d_xij = self.xj[j]
             d_sum = sum(x[0] * math.floor(self.bp.reverse_customer_map[x[1]].p_score) for x in d_xij)
             d_ex = d_sum - len(d_xij) * math.floor(self.bp.reverse_funder_map[j].d_score)
-            self.model.AddLinearConstraint(d_ex, cp_model.INT_MIN, 0)
+            v = self.model.NewBoolVar(str(d_ex))
+            self.model.AddLinearConstraint(d_ex, cp_model.INT_MIN, 0).OnlyEnforceIf(v)
+            self.model.AddAssumptions([v])
             print('   ', d_ex, '≤', 0, '      (d.)')
 
     def __make_constraint_e(self):
@@ -127,11 +138,13 @@ class CpModelOptimizer:
                                                           self.bp.reverse_funder_map[j].beta)
             n = len(d_xij)
             lamb = n / (n + self.bp.reverse_funder_map[j].alpha + self.bp.reverse_funder_map[j].beta)
-            d_sum = sum(x[0] * math.floor(self.bp.reverse_customer_map[x[1]].pd * lamb * PRECISION) for x in d_xij) + \
-                    math.floor(pctr * n * (1 - lamb) * PRECISION) - math.floor(
-                self.bp.reverse_funder_map[j].dr * n * PRECISION)
+            d_sum = sum(x[0] * math.floor(self.bp.reverse_customer_map[x[1]].pd * lamb * PRECISION * PRECISION) for x in d_xij) + \
+                    math.floor(pctr * n * (1 - lamb) * PRECISION * PRECISION) - math.floor(
+                self.bp.reverse_funder_map[j].dr * n * PRECISION * PRECISION)
 
-            # self.model.AddLinearConstraint(d_sum, cp_model.INT_MIN, 0)
+            v = self.model.NewBoolVar(str(d_sum))
+            self.model.AddLinearConstraint(d_sum, cp_model.INT_MIN, 0).OnlyEnforceIf(v)
+            self.model.AddAssumptions([v])
             print('   ', d_sum, '≤', 0, '      (e.)')
 
     def __make_constraint_h(self):
@@ -140,7 +153,9 @@ class CpModelOptimizer:
             h_xij = self.xi[i]
             h_sum = sum(x[0] for x in h_xij)
 
-            self.model.AddLinearConstraint(h_sum, 1, 1)
+            v = self.model.NewBoolVar(str(h_sum))
+            self.model.AddLinearConstraint(h_sum, 1, 1).OnlyEnforceIf(v)
+            self.model.AddAssumptions([v])
 
             print('   ', h_sum, "= 1", '      (h.)')
 
@@ -161,8 +176,6 @@ class CpModelOptimizer:
             print(f'Maximum of objective function: {solver.ObjectiveValue()}\n')
             for v in self.variables:
                 print(f'{v[0].Name}={solver.Value(v[0])}')
-        else:
-            print('No solution found.')
 
         # Statistics.
         print('\nStatistics')
@@ -181,7 +194,7 @@ class CpModelOptimizer:
             self.bp.print_graph_base(lambda i, j: (i, j) in ij_map)
 
         if status == cp_model.INFEASIBLE:
-            for var_index in solver.ResponseProto().sufficient_assumptions_for_infeasibility:
-                print(var_index, self.model.VarIndexToVarProto(var_index))  # prints "v1"
+            print('SufficientAssumptionsForInfeasibility = '
+                  f'{solver.SufficientAssumptionsForInfeasibility()}')
 
         return solver
