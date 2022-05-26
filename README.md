@@ -36,6 +36,10 @@ s.t. &\sum\limits_{i=1}^{n}x_{ij}\cdot m_i&\leq (1-e^{\frac{\sum\limits_{k\in \G
      &k&\geq0,  &k=1,2,\ldots,q  \\
 \end{array}
 \end{align*}
+$$
+
+$$
+
 b(i)=\left\{
 \begin{array}{rcl}
 1 & & {t(i)=k}\\
@@ -45,5 +49,5 @@ e(i)&=\left\{
 \begin{array}{rcl}
   \frac{\frac{r_i}{12}\cdot (\frac{r_i}{12}+1)^{w_i}}{(1+\frac{r_i}{12})^{w_i}-1}\cdot w_i-1 & & {等额本息}\\
   (w_i+1)*\frac{1}{2}*\frac{r_i}{12}  & & {等额本金}
-\end{array} \right. ,&i=1,2,\ldots,n          
+\end{array} \right. ,&i=1,2,\ldots,n   
 $$
