@@ -1,8 +1,8 @@
 """Simple solve."""
-
+from basic.bipartite_graph import BipartiteGraph
+from basic.customer import Customer
 from optimizer.optimization import CpModelOptimizer
 from tools.config_tools import ConfigTools
-
 
 """Simple Constraint optimization example."""
 
@@ -44,6 +44,7 @@ def SimpleSatProgram():
     print('Problem solved in ', solver.WallTime(), 'ms')
     print('Memory usage: ', pywrapcp.Solver.MemoryUsage(), 'bytes')
 
+
 def tt():
     """Showcases assumptions."""
     # Creates the model.
@@ -68,12 +69,12 @@ def tt():
     model.Add(x > y).OnlyEnforceIf(a)
     model.Add(y > z).OnlyEnforceIf(b)
     model.Add(z > x).OnlyEnforceIf(c)
-    model.Add(x+y > z).OnlyEnforceIf(d)
+    model.Add(x + y > z).OnlyEnforceIf(d)
     # [END constraints]
 
     # Add assumptions
     model.AddAssumptions([d, a, b, c])
-    print(a.Index(),',',b.Index(),',',c.Index(),',',d.Index())
+    print(a.Index(), ',', b.Index(), ',', c.Index(), ',', d.Index())
 
     # Creates a solver and solves.
     # [START solve]
@@ -89,11 +90,25 @@ def tt():
               f'{solver.SufficientAssumptionsForInfeasibility()}')
     # [END print_solution]
 
-if __name__ == "__main__":
-    # SimpleSatProgram()
-    tt()
 
-    cfg = ConfigTools(path='/Users/liyiran/Gitlab/smart_allocation')
+def build_one_customer(cp: CpModelOptimizer):
+    funds = '200, 300'
+    cus = Customer(200, 86000, 36, 0, 0, 0.1288, 0.0121, 0.85, 485, 0.15, 0)
+    [cus.funders.append(cp.funders_struct_map[f.strip()]) for f in funds.split(',')]
+    return cus
+
+
+if __name__ == "__main__":
+
+    cfg = ConfigTools(path='./')
 
     cp_model = CpModelOptimizer(cfg)
+    cp_model.build_problem()
+
+    customer = build_one_customer(cp_model)
+
+    cp_model.bp.add_customer(customer)
+    cp_model.build_problem()
+
+    cp_model.bp.remove_customer(customer.id)
     cp_model.build_problem()

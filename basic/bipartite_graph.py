@@ -10,11 +10,10 @@ class BipartiteGraph:
         self.customer_list = customer_list
         self.num_rows = len(customer_list)
         self.num_columns = num_funder
-        self.customer_map = {}  # 用户id与用户变量编码的对应关系
-        self.reverse_customer_map = {}  # 用户变量编码与用户结构体关系
-        self.funder_map = {}  # 资方id与资方变量编码的对应关系
-        self.reverse_funder_map = {}  # 资方变量编码和资方结构体的对应关系
-        self.last_idx = self.num_rows
+        self.customers_map = {}  # 用户id与用户变量编码的对应关系
+        self.reverse_customers_map = {}  # 用户变量编码与用户结构体关系
+        self.funders_map = {}  # 资方id与资方变量编码的对应关系
+        self.reverse_funders_map = {}  # 资方变量编码和资方结构体的对应关系
 
         size = self.num_rows * self.num_columns
         if size > 0:
@@ -39,37 +38,52 @@ class BipartiteGraph:
             if not isinstance(customer, Customer):
                 return False
 
-            if customer.id not in self.customer_map:
-                self.customer_map[customer.id] = c_coder  # 用户id -> 变量编码
-                self.reverse_customer_map[c_coder] = customer  # 变量编码 -> 用户结构体
+            if customer.id not in self.customers_map:
+                self.customers_map[customer.id] = c_coder  # 用户id -> 变量编码
+                self.reverse_customers_map[c_coder] = customer  # 变量编码 -> 用户结构体
                 c_coder += 1
 
             for funder in customer.funders:
-                if funder.id not in self.funder_map:
-                    self.funder_map[funder.id] = f_coder  # 资方id -> 变量编码
-                    self.reverse_funder_map[f_coder] = funder  # 变量编码 -> 资方结构体
+                if funder.id not in self.funders_map:
+                    self.funders_map[funder.id] = f_coder  # 资方id -> 变量编码
+                    self.reverse_funders_map[f_coder] = funder  # 变量编码 -> 资方结构体
                     f_coder += 1
 
-                self.bitmap[self.num_columns * self.customer_map[customer.id] + self.funder_map[funder.id]] = 1
+                self.bitmap[self.num_columns * self.customers_map[customer.id] + self.funders_map[funder.id]] = 1
 
         if c_coder != self.num_rows - 1 or f_coder != self.num_columns - 1:
             return False
 
         return True
 
-    # 前提条件：每日无新增资方
+    # 前提条件：每日无新增资方，新增用户按照顺序自增
     def add_customer(self, customer):
         self.bitmap.extend([0] * self.num_columns)
-        if customer.id not in self.customer_map:
-            self.customer_map[customer.id] = self.num_rows  # 用户id -> 变量编码
-            self.reverse_customer_map[self.num_rows] = customer  # 变量编码 -> 用户id
+        if customer.id not in self.customers_map:
+            self.customers_map[customer.id] = self.num_rows  # 用户id -> 变量编码
+            self.reverse_customers_map[self.num_rows] = customer  # 变量编码 -> 用户id
             self.num_rows += 1
 
         for funder in customer.funders:
-            if funder.id not in self.funder_map:
+            if funder.id not in self.funders_map:
                 return False
 
-            self.bitmap[self.num_columns * self.customer_map[customer.id] + self.funder_map[funder.id]] = 1
+            self.bitmap[self.num_columns * self.customers_map[customer.id] + self.funders_map[funder.id]] = 1
+
+        return True
+
+    # 只删除关系，不改变编码
+    def remove_customer(self, customer_id):
+        if customer_id not in self.customers_map:
+            print("customer {0} is not exist.".format(customer_id))
+            return False
+        else:
+            customer = self.reverse_customers_map[self.customers_map[customer_id]]
+            for funder in customer.funders:
+                if funder.id not in self.funders_map:
+                    continue
+
+                self.bitmap[self.num_columns * self.customers_map[customer.id] + self.funders_map[funder.id]] = 0
 
         return True
 

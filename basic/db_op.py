@@ -31,7 +31,7 @@ def build_customers_data(funders_map, cfg):
             for row in results:
                 funds = row[11]
                 customer = Customer(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10])
-                [customer.funders.append(funders_map[f]) for f in funds.split(',')]
+                [customer.funders.append(funders_map[f.strip()]) for f in funds.split(',')]
                 customers.append(customer)
 
                 for f in funds.split(','):
@@ -57,7 +57,7 @@ def build_customers_data(funders_map, cfg):
             customer = Customer(int(d.loc['identifier']), int(d.loc['m']), int(d.loc['w']), int(d.loc['t']), int(d.loc['rt']), float(d.loc['r']),
                                 float(d.loc['pd']), float(d.loc['lgd']), float(d.loc['p_score']), float(d.loc['mr']), int(d.loc['hr']))
 
-            [customer.funders.append(funders_map[f]) for f in funds.split(',')]
+            [customer.funders.append(funders_map[f.strip()]) for f in funds.split(',')]
 
             customers.append(customer)
 
