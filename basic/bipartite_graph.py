@@ -6,6 +6,10 @@ from basic.customer import Customer
 
 
 class BipartiteGraph:
+    """
+    某一个时点，需要被分单的所有用户，从业务上讲，这些用户都是可以被重新分配资方的.
+    """
+
     def __init__(self, customer_list, num_funder):
         self.customer_list = customer_list
         self.num_rows = len(customer_list)

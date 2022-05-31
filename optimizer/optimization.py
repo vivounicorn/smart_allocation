@@ -176,7 +176,7 @@ class CpModelOptimizer:
 
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             print('--------------------------------------')
-            print(f'Maximum of objective function: {solver.ObjectiveValue()}\n')
+            print(f'Maximum of objective function: {solver.ObjectiveValue()}（预期EVA，单位：元）\n')
             for v in self.variables:
                 print(f'{v[0].Name}={solver.Value(v[0])}')
 
