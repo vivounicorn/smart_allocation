@@ -9,9 +9,9 @@ s.t. &\sum\limits_{i=1}^{n}x_{ij}\cdot m_i&\leq (1-e^{\frac{\sum\limits_{k\in \G
               1 & & {t(i)=k}\\
               0 & & {otherwise}
            \end{array} \right. ,&i=1,2,\ldots,n;k=1,2,\ldots,q&\text{用户$i$所属业务类型是$k$时指示函数取值为1，其他为0}\\
-     &\frac{\sum\limits_{i=1}^{n}x_{ij}\cdot pscore_i}{n}&\leq dscore_j,  &i=1,2,\ldots,n;j=1,2,\ldots,m  &\text{(d.) 资方$j$承接订单的平均逾期率(基于易鑫分)不能超过设定值}\\
+     &\frac{\sum\limits_{i=1}^{n}x_{ij}\cdot pscore_i}{{\sum\limits_{i=1}^{n}x_{ij}}}&\leq dscore_j,  &i=1,2,\ldots,n;j=1,2,\ldots,m  &\text{(d.) 资方$j$承接订单的平均逾期率(基于易鑫分)不能超过设定值}\\
      &pscore_i,dscore_j&\geq 0&i=1,2,\ldots,n;j=1,2,\ldots,m  &\text{用户易鑫分评分及资方接受的易鑫分}\\
-     &\frac{\sum\limits_{i=1}^{n}x_{ij}\cdot pd_i}{n}\cdot\lambda&+\frac{\alpha}{\alpha+\beta}\cdot (1-\lambda) \leq dr_j,  &i=1,2,\ldots,n;j=1,2,\ldots,m  &\text{(e.) 资方$j$承接订单的平均逾期率(基于Beta-Binomial)不能超过设定值}\\
+     &\frac{\sum\limits_{i=1}^{n}x_{ij}\cdot pd_i}{\sum\limits_{i=1}^{n}x_{ij}}\cdot\lambda&+\frac{\alpha}{\alpha+\beta}\cdot (1-\lambda) \leq dr_j,  &i=1,2,\ldots,n;j=1,2,\ldots,m  &\text{(e.) 资方$j$承接订单的平均逾期率(基于Beta-Binomial)不能超过设定值}\\
      &\lambda&=\frac{\sum\limits_{i=1}^{n}x_{ij}}{\sum\limits_{i=1}^{n}x_{ij}+\alpha+\beta}&i=1,2,\ldots,n;j=1,2,\ldots,m&\text{平滑资方$j$承接订单逾期率的系数}\\
      &\alpha,\beta&\geq 0&&\text{资方$j$逾期率服从Beta-Binomial分布的超参数}\\
      &\sum\limits_{k=1}^{s} td_k &\leq 1&k=1,2,\ldots,q &\text{(f.) 所有业务类型承接订单占比之和≤1}\\

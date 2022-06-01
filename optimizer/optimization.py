@@ -125,25 +125,24 @@ class CpModelOptimizer:
         for j in self.xj:
             d_xij = self.xj[j]
             d_sum = sum(x[0] * math.floor(self.bp.reverse_customers_map[x[1]].p_score) for x in d_xij)
-            d_ex = d_sum - len(d_xij) * math.floor(self.bp.reverse_funders_map[j].d_score)
+            d_ex = d_sum - sum(x[0] for x in d_xij) * math.floor(self.bp.reverse_funders_map[j].d_score)
             v = self.model.NewBoolVar(str(d_ex))
-            self.model.AddLinearConstraint(d_ex, cp_model.INT_MIN, 0).OnlyEnforceIf(v)
+            self.model.AddLinearConstraint(d_ex, 0, cp_model.INT_MAX).OnlyEnforceIf(v)
             self.model.AddAssumptions([v])
-            print('   ', d_ex, '≤', 0, '      (d.)')
+            print('   ', d_ex, '≥', 0, '      (d.)')
 
     def __make_constraint_e(self):
         # 构造约束条件:funders.
         for j in self.xj:
             d_xij = self.xj[j]
-            pctr = self.bp.reverse_funders_map[j].alpha / (self.bp.reverse_funders_map[j].alpha +
-                                                           self.bp.reverse_funders_map[j].beta)
-            n = len(d_xij)
-            lamb = n / (n + self.bp.reverse_funders_map[j].alpha + self.bp.reverse_funders_map[j].beta)
-            d_sum = sum(x[0] * math.floor(self.bp.reverse_customers_map[x[1]].pd * lamb * PRECISION * PRECISION) for x in d_xij) + \
-                    math.floor(pctr * n * (1 - lamb) * PRECISION * PRECISION) - math.floor(
-                self.bp.reverse_funders_map[j].dr * n * PRECISION * PRECISION)
+            lamb_sum = sum(x[0] * math.floor(self.bp.reverse_customers_map[x[1]].pd * PRECISION) for x in d_xij)
+            d_sum = lamb_sum + math.floor(self.bp.reverse_funders_map[j].alpha * PRECISION) - (
+                    sum(x[0] for x in d_xij) + math.floor(self.bp.reverse_funders_map[j].alpha +
+                                                          self.bp.reverse_funders_map[j].beta)) * math.floor(
+                self.bp.reverse_funders_map[j].dr * PRECISION)
 
             v = self.model.NewBoolVar(str(d_sum))
+            print(d_sum)
             self.model.AddLinearConstraint(d_sum, cp_model.INT_MIN, 0).OnlyEnforceIf(v)
             self.model.AddAssumptions([v])
             print('   ', d_sum, '≤', 0, '      (e.)')
