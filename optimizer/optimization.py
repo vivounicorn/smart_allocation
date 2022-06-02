@@ -96,6 +96,8 @@ class CpModelOptimizer:
             # 托底资方不受限制，其他资方尽量按照通过率及比例要求分配.
             if self.bp.reverse_funders_map[j].is_base:
                 ex = (b_sumj - b_sumij) * PRECISION
+            elif self.config.is_fd_soft:
+                ex = b_sumj * PRECISION - b_sumij * math.floor(self.bp.reverse_funders_map[j].d * PRECISION)
             else:
                 ex = b_sumj * PRECISION - b_sumij * math.floor(d / dsum * PRECISION + 1)
 
@@ -168,6 +170,8 @@ class CpModelOptimizer:
         self.__make_constraint_d()
         self.__make_constraint_e()
         self.__make_constraint_h()
+
+        # print([x for (x, _, _) in self.variables])
 
         solver = cp_model.CpSolver()
 

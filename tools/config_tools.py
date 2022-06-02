@@ -30,6 +30,9 @@ class ConfigTools:
         for i in biz_str_dict:
             self.biz_items[int(i)] = float(biz_str_dict[i])
 
-        unused_items = con.items('unused_funder')
-        self.unused_items = [int(i) for i in unused_items[0][1].split(',')]
+        # 是否使用本地文件作为数据源
+        fd = con.items('fd_config')
+        fd_config = dict(fd)
+        self.is_fd_soft = fd_config['is_fd_soft'].lower() in ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
+        self.unused_fd = [int(i) for i in fd_config['unused_fd'].split(',')]
 
